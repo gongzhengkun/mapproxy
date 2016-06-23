@@ -21,6 +21,7 @@ from mapproxy.request import Request
 from mapproxy.response import Response
 from mapproxy.util.collections import LRU
 from mapproxy.wsgiapp import make_wsgi_app as make_mapproxy_wsgi_app
+from mapproxy.wsgiapp import init_logging_system as init_logging_system
 from mapproxy.compat import iteritems
 
 from threading import Lock
@@ -45,6 +46,11 @@ def app_factory(global_options, config_dir, allow_listing=False, **local_options
     :param config_dir: directory with all mapproxy configurations
     :param allow_listing: allow to list all available apps
     """
+    conf = global_options.copy()
+    conf.update(local_options)
+    log_conf = conf.get('log_conf', None)
+
+    init_logging_system(log_conf, os.path.dirname(log_conf))
     return make_wsgi_app(config_dir, asbool(allow_listing))
 
 def make_wsgi_app(config_dir, allow_listing=True, debug=False):
